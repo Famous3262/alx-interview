@@ -2,21 +2,22 @@
 """Pascal triangle interview"""
 
 def pascal_triangle(n):
-    """returns list of lists of numbers
-    of Pascal triangle"""
     if n <= 0:
         return []
     
-    triangle = [[1]]
+    triangle = [0] * n
     
-    for i in range(1, n):
-        row = [1]
-        prev_row = triangle[i-1]
+    for i in range(n):
+        row = [0] * (i+1)
+        row[0] = 1
+        row[len(row) - 1] = 1
         
         for j in range(1, i):
-            row.append(prev_row[j-1] + prev_row[j])
+            if j > 0 and j < len(row):
+                a = triangle[i - 1][j]
+                b = triangle[i - 1][j - 1]
+                row[j] = a + b
         
-        row.append(1)
-        triangle.append(row)
+        triangle[i] = row
     
     return triangle

@@ -6,8 +6,11 @@ import math
 
 
 def minOperations(n):
+    """If n is 1, no operations are needed
+    as there is already one H character in the file
+    """
     if n == 1:
-        return 0  # If n is 1, no operations are needed as there is already one H character in the file
+        return 0
 
     operations = 0
     factor = 2

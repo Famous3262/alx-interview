@@ -5,41 +5,34 @@ import sys
 import signal
 
 
-def main():
-    lines = []
-    total_size = 0
-    status_count = {200: 0, 301: 0, 400: 0, 401: 0,
-                    403: 0, 404: 0, 405: 0, 500: 0}
+cache = {'200': 0, '301': 0, '400': 0, '401': 0,
+         '403': 0, '404': 0, '405': 0, '500': 0}
+total_size = 0
+status_count = 0
 
-    try:
-        for line in sys.stdin:
-            line = line.strip()
-            if is_valid_format(line):
-                parts = line.split()
-                file_size = int(parts[-1])
-                status_code = int(parts[-2])
-                total_size += file_size
-                status_count[status_code] += 1
-                lines.append(line)
+try:
+    for line in sys.stdin:
+        line_list = line.split(" ")
+        if len(line_list) > 4:
+            code = line_list[-2]
+            size = int(line_list[-1])
+            if code in cache.keys():
+                cache[code] += 1
+            total_size += size
+            status_count += 1
 
-                if len(lines) == 10:
-                    print_stats(total_size, status_count)
-                    lines = []
-    except KeyboardInterrupt:
-        print_stats(total_size, status_count)
+        if status_count == 10:
+            status_count = 0
+            print('File size: {}'.format(total_size))
+            for key, value in sorted(cache.items()):
+                if value != 0:
+                    print('{}: {}'.format(key, value))
 
+except Exception as err:
+    pass
 
-def is_valid_format(line):
-    parts = line.split()
-    return len(parts) == 10 and parts[5].isdigit() and parts[8].isdigit()
-
-
-def print_stats(total_size, status_count):
-    print(f"Total file size: File size: {total_size}")
-    for code in sorted(status_count.keys()):
-        if status_count[code] > 0:
-            print(f"{code}: {status_count[code]}")
-
-
-if __name__ == "__main__":
-    main()
+finally:
+    print('File size: {}'.format(total_size))
+    for key, value in sorted(cache.items()):
+        if value != 0:
+            print('{}: {}'.format(key, value))

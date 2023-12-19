@@ -5,40 +5,41 @@ import sys
 import signal
 
 
-def signal_handler(signal, frame):
-    print_stats()
+def main():
+    lines = []
+    total_size = 0
+    status_count = {200: 0, 301: 0, 400: 0, 401: 0,
+                    403: 0, 404: 0, 405: 0, 500: 0}
+
+    try:
+        for line in sys.stdin:
+            line = line.strip()
+            if is_valid_format(line):
+                parts = line.split()
+                file_size = int(parts[-1])
+                status_code = int(parts[-2])
+                total_size += file_size
+                status_count[status_code] += 1
+                lines.append(line)
+
+                if len(lines) == 10:
+                    print_stats(total_size, status_count)
+                    lines = []
+    except KeyboardInterrupt:
+        print_stats(total_size, status_count)
 
 
-def print_stats():
-    global total_size, status_codes
-    print(f"Total file size: {total_size}")
-    for code in sorted(status_codes.keys()):
-        print(f"{code}: {status_codes[code]}")
+def is_valid_format(line):
+    parts = line.split()
+    return len(parts) == 10 and parts[5].isdigit() and parts[8].isdigit()
 
 
-total_size = 0
-status_codes = {}
+def print_stats(total_size, status_count):
+    print(f"Total file size: File size: {total_size}")
+    for code in sorted(status_count.keys()):
+        if status_count[code] > 0:
+            print(f"{code}: {status_count[code]}")
 
-# Set up the signal handler to catch CTRL + C
-signal.signal(signal.SIGINT, signal_handler)
 
-try:
-    for line in sys.stdin:
-        data = line.split()
-        # Check if the input line matches the expected format
-        if len(data) == 10 and data[8].isdigit():
-            total_size += int(data[8])
-            status_code = data[9]
-            # Check if the status code is valid and update the count
-            if status_code in ['200', '301', '400', '401',
-                               '403', '404', '405', '500']:
-                status_codes[status_code] = status_codes.get(status_code, 0)+1
-        """" Print statistics and reset values
-        after every 10 lines or keyboard interruption
-        """
-        if len(status_codes) == 8 or len(status_codes) == 0:
-            print_stats()
-            total_size = 0
-            status_codes = {}
-except KeyboardInterrupt:
-    print_stats()
+if __name__ == "__main__":
+    main()

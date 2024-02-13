@@ -3,11 +3,11 @@
 
 
 def isWinner(x, nums):
-    """ finding the winner"""
+    """find winner"""
     def is_prime(num):
         if num < 2:
             return False
-        for i in range(2, int(num ** 0.5) + 1):
+        for i in range(2, int(num**0.5) + 1):
             if num % i == 0:
                 return False
         return True
@@ -18,19 +18,29 @@ def isWinner(x, nums):
             num += 1
         return num
 
-    def can_win(n):
+    def winner(n):
         if n % 2 == 0:
-            return False
-        return True
-
-    maria_wins = 0
-    ben_wins = 0
-
-    for n in nums:
-        if can_win(n):
-            maria_wins += 1
+            return "Ben"
         else:
-            ben_wins += 1
+            return "Maria"
+
+    winners = []
+    for n in nums:
+        primes = [True] * (n + 1)
+        primes[0] = primes[1] = False
+
+        p = 2
+        while p * p <= n:
+            if primes[p]:
+                for i in range(p * p, n + 1, p):
+                    primes[i] = False
+            p = next_prime(p)
+
+        count_primes = sum(primes)
+        winners.append(winner(count_primes))
+
+    maria_wins = winners.count("Maria")
+    ben_wins = winners.count("Ben")
 
     if maria_wins > ben_wins:
         return "Maria"
@@ -43,4 +53,5 @@ def isWinner(x, nums):
 # Example usage
 x = 3
 nums = [4, 5, 1]
-print(isWinner(x, nums))
+result = isWinner(x, nums)
+print(result)

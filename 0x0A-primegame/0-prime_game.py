@@ -48,10 +48,3 @@ def isWinner(x, nums):
         return "Ben"
     else:
         return None
-
-
-# Example usage
-x = 3
-nums = [4, 5, 1]
-result = isWinner(x, nums)
-print(result)
